@@ -1,0 +1,458 @@
+openapi: 3.0.1
+info:
+  title: healthplus-backend
+  description: My cool app
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: Auth Service
+    description: Auth Service endpoints
+  - name: User Service
+    description: User Service endpoints
+  - name: Case Service
+    description: Reports Service endpoints
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Auth Service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpBody"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpResponse"
+
+  /auth/login:
+    post:
+      tags:
+        - Auth Service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpResponse"
+
+  /auth/google-login:
+    post:
+      tags:
+        - Auth Service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleLoginBody"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpResponse"
+
+  /auth/test:
+    post:
+      tags:
+        - Auth Service
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /user/:
+    get:
+      tags:
+        - User Service
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUserResponse"
+
+  /user/patients:
+    get:
+      tags:
+        - User Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: Search Query
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchUserResponse"
+
+  /cases/:
+    post:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCaseRequestBody"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCaseResponse"
+
+    get:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          example: 1
+          description: Page Number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          example: 10
+          description: Number of cases per page
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCasesResponse"
+
+  /cases/{id}:
+    get:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "5e1f5c9"
+          description: Case ID
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCaseByIdResponse"
+
+  /cases/medication/markAsGiven/{id}:
+    post:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "5e1f5c9"
+          description: Case ID
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkMedsAsGivenBody"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /cases/markComplete/{id}:
+    post:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          example: "5e1f5c9"
+          description: Case ID
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /cases/analytics:
+    get:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: timeframe
+          schema:
+            type: string
+          description: week
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: ongoing
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /cases/stats:
+    get:
+      tags:
+        - Case Service
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+components:
+  schemas:
+    SignUpResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+
+    SignUpBody:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - phone
+        - role
+        - dob
+        - gender
+      properties:
+        name:
+          type: string
+          example: "Roshani Navdiya"
+        email:
+          type: string
+          format: email
+          example: "patient@gmail.com"
+        password:
+          type: string
+          example: "password"
+        phone:
+          type: string
+          example: "1234567890"
+        role:
+          type: string
+          enum: ["doctor", "patient", "attendant", "admin"]
+          example: "patient"
+        dob:
+          type: string
+          format: date
+          example: "2003-07-09"
+        gender:
+          type: string
+          example: "Male"
+          enum: ["Male", "Female", "Others"]
+
+    LoginBody:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "patient@gmail.com"
+        password:
+          type: string
+          example: "password"
+
+    GoogleLoginBody:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          type: string
+          example: "4/0AY0e-g5Uq7q3"
+
+    GetUserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "5e1f5c9c-7b1a-4c1c-8c9d-3d2a1d2e3f4g"
+        email:
+          type: string
+          format: email
+          example: "johndoe@test.com"
+        credits:
+          type: integer
+          example: 0
+        tags:
+          type: array
+          items:
+            type: string
+            example: "javascript"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2020-01-01T00:00:00.000Z"
+
+    SearchUserResponse:
+      type: array
+      items:
+        type: object
+        example: {}
+
+    CreateCaseRequestBody:
+      type: object
+      required:
+        - patient
+        - vitals
+        - complains
+        - diagnosis
+        - prescription
+      properties:
+        patient:
+          type: string
+          example: "6516164684684hfdvd"
+        vitals:
+          type: object
+          example: {}
+        complains:
+          type: array
+          items:
+            type: object
+            example: {}
+        diagnosis:
+          type: array
+          items:
+            type: string
+            example: "Malaria"
+        prescription:
+          type: object
+          properties:
+            medications:
+              type: array
+              items:
+                type: object
+                example: {}
+            advice:
+              type: string
+              example: "Take Rest"
+
+    CreateCaseResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Successfully filed case"
+        data:
+          type: object
+          example: {}
+
+    GetCasesResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 20
+        cases:
+          type: array
+          items:
+            type: object
+            example: {}
+
+    GetCaseByIdResponse:
+      type: object
+      example: {}
+
+    MarkMedsAsGivenBody:
+      type: object
+      properties:
+        medicineId:
+          type: number
+          example: 1
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Taks Complted Successfully"
+
+    Error:
+      type: object
+      additionalProperties: true
+
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: >
+        Provide a valid JWT token (without adding `Bearer : ` prefix)
